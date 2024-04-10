@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OnlineShoppingSystem.Data;
+using OnlineShoppingSystem.Interface;
 using OnlineShoppingSystem.Models;
 
 namespace OnlineShoppingSystem.Controllers
@@ -14,25 +11,26 @@ namespace OnlineShoppingSystem.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private readonly OnlineShoppingSystemContext _context;
+        private readonly IBrandRepository _brandRepository;
 
-        public BrandsController(OnlineShoppingSystemContext context)
+        public BrandsController(IBrandRepository brandRepository)
         {
-            _context = context;
+            _brandRepository = brandRepository;
         }
 
         // GET: api/Brands
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Brand>>> GetBrand()
         {
-            return await _context.Brand.ToListAsync();
+            var brands = await _brandRepository.GetBrands();
+            return Ok(brands);
         }
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Brand>> GetBrand(int id)
         {
-            var brand = await _context.Brand.FindAsync(id);
+            var brand = await _brandRepository.GetBrand(id);
 
             if (brand == null)
             {
@@ -43,7 +41,6 @@ namespace OnlineShoppingSystem.Controllers
         }
 
         // PUT: api/Brands/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBrand(int id, Brand brand)
         {
@@ -52,15 +49,13 @@ namespace OnlineShoppingSystem.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(brand).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _brandRepository.PutBrand(id, brand);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BrandExists(id))
+                if (!_brandRepository.BrandExists(id))
                 {
                     return NotFound();
                 }
@@ -74,35 +69,25 @@ namespace OnlineShoppingSystem.Controllers
         }
 
         // POST: api/Brands
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Brand>> PostBrand(Brand brand)
         {
-            _context.Brand.Add(brand);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetBrand", new { id = brand.Id }, brand);
+            var createdBrand = await _brandRepository.PostBrand(brand);
+            return CreatedAtAction(nameof(GetBrand), new { id = createdBrand.Id }, createdBrand);
         }
 
         // DELETE: api/Brands/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBrand(int id)
         {
-            var brand = await _context.Brand.FindAsync(id);
+            var brand = await _brandRepository.GetBrand(id);
             if (brand == null)
             {
                 return NotFound();
             }
 
-            _context.Brand.Remove(brand);
-            await _context.SaveChangesAsync();
-
+            await _brandRepository.DeleteBrand(id);
             return NoContent();
-        }
-
-        private bool BrandExists(int id)
-        {
-            return _context.Brand.Any(e => e.Id == id);
         }
     }
 }

@@ -16,5 +16,12 @@ namespace OnlineShoppingSystem.Data
 
         public DbSet<OnlineShoppingSystem.Models.User> User { get; set; } = default!;
         public DbSet<OnlineShoppingSystem.Models.Brand> Brand { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Category> Category { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Order> Order { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.OrderItem> OrderItem { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Payment> Payment { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Product> Product { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Review> Review { get; set; } = default!;
+        public DbSet<OnlineShoppingSystem.Models.Shipping> Shipping { get; set; } = default!;
     }
 }
